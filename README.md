@@ -1,2 +1,2 @@
 # Skinet
-skinet ,Net angular Application
+skinet, .Net angular Application
