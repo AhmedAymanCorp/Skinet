@@ -1,3 +1,4 @@
+using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,10 @@ builder.Services.AddDbContext<StoreContext>(option =>
 }
 );
 
+//System added services 
+
+builder.Services.AddScoped<IProductRepository,ProductRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,5 +34,19 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+using var Scope=app.Services.CreateScope();
+var services=Scope.ServiceProvider;
+var context=services.GetRequiredService<StoreContext>();
+var logger=services.GetRequiredService<ILogger<Program>>();
+ try
+ {
+    await context.Database.MigrateAsync();
+    await StoreContextSeed.SeedAsync(context);
+ }
+ catch (Exception ex)
+ {
+    logger.LogError(ex,"an error ouccred during migration");
+ }
 
 app.Run();
